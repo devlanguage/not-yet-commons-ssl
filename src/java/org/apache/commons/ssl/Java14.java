@@ -193,6 +193,12 @@ public final class Java14 extends JavaImpl {
         }
         s.bind(src);
 
+        if (timeout > 0 && s.getSoTimeout() == 0) {
+            // force SO timeout if not set so we don't freeze forever
+            // during a handshake
+            s.setSoTimeout(timeout);
+        }
+
         s.connect(dest, timeout);
         return s;
     }
