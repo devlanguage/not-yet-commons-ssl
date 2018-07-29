@@ -493,7 +493,9 @@ public class KeyStoreBuilder {
                     }
                 }
                 if (isPKCS12 && en.hasMoreElements()) {
-                    System.out.println("what kind of weird pkcs12 file has more than one alias?");
+                    // NB: commented out the following line as on Java 9+ cacerts and jssecacerts
+                    // are stored in PKCS12 format
+//                    System.out.println("what kind of weird pkcs12 file has more than one alias?");
                 }
             }
             if (key == null && uke != null) {
@@ -505,7 +507,10 @@ public class KeyStoreBuilder {
             }
             if (isPKCS12) {
                 // PKCS12 is supposed to be just a key and a chain, anyway.
-                jksKeyStore = null;
+
+                // NB: commented out the following line as on Java 9+ cacerts and jssecacerts
+                // are stored in PKCS12 format
+//                jksKeyStore = null;
             }
 
             List keys = Collections.singletonList(key);
