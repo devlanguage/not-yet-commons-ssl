@@ -60,6 +60,7 @@ import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -228,17 +229,15 @@ public class KeyStoreBuilder {
     }
 
     public static BuildResult validate(KeyStore jks, char[] keyPass)
-        throws CertificateException, KeyStoreException,
-        NoSuchAlgorithmException, InvalidKeyException,
-        NoSuchProviderException, UnrecoverableKeyException {
-        Enumeration en = jks.aliases();
+            throws KeyStoreException {
         boolean atLeastOneSuccess = false;
         boolean atLeastOneFailure = false;
 
-        List keys = new LinkedList();
-        List chains = new LinkedList();
-        while (en.hasMoreElements()) {
-            String alias = (String) en.nextElement();
+        List<String> aliases = aliasesFromKeyStore(jks);
+
+        List<PrivateKey> keys = new ArrayList<>();
+        List<X509Certificate[]> chains = new ArrayList<>();
+        for (String alias : aliases) {
             if (jks.isKeyEntry(alias)) {
                 try {
                     PrivateKey key = (PrivateKey) jks.getKey(alias, keyPass);
@@ -275,6 +274,16 @@ public class KeyStoreBuilder {
         // (Sun's builtin SSL refuses to deal with keystores where not all
         // keys can be decrypted).
         return atLeastOneFailure ? new BuildResult(keys, chains, null) : null;
+    }
+
+    private static List<String> aliasesFromKeyStore(KeyStore jks) throws KeyStoreException {
+        List<String> aliases = new ArrayList<>();
+        Enumeration en = jks.aliases();
+        while (en.hasMoreElements()) {
+            String alias = (String) en.nextElement();
+            aliases.add(alias);
+        }
+        return aliases;
     }
 
     public static class BuildResult {
